@@ -35,7 +35,6 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
 
         binding.btnRegister.setOnClickListener {
-            // TODO: 1. Check if edit texts are empty and show error accordingly, 2. confirm pass check
             val name: String = binding.inputName.text.toString()
             val email: String = binding.inputEmailid.text.toString()
             val password: String = binding.inputPasswordReg.text.toString()
