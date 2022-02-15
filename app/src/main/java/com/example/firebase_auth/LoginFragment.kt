@@ -1,9 +1,11 @@
 package com.example.firebase_auth
 
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -72,3 +74,22 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         return binding.root
     }
 }
+
+//for button effect on click
+/*
+fun buttonEffect(button: View) {
+    button.setOnTouchListener { v, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                v.background.setColorFilter(-0x1f0b8adf, PorterDuff.Mode.SRC_ATOP)
+                v.invalidate()
+            }
+            MotionEvent.ACTION_UP -> {
+                v.background.clearColorFilter()
+                v.invalidate()
+            }
+        }
+        false
+    }
+}
+ */
