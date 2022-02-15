@@ -1,6 +1,7 @@
 package com.example.firebase_auth
 
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,17 +17,18 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import java.lang.ref.PhantomReference
 import java.security.AccessController.getContext
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
     private var _binding: FragmentRegisterBinding? = null
-    private lateinit var auth: FirebaseAuth
+    private var auth: FirebaseAuth? = null
+    private lateinit var databaseReference: DatabaseReference
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private var uid: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +42,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             val password: String = binding.inputPasswordReg.text.toString()
             val confirmPassword: String = binding.inputConfirmPass.text.toString()
 
+            //checking for valid inputs
             if (TextUtils.isEmpty(name)) {
                 binding.inputName.error = "Name required"
             } else if (TextUtils.isEmpty(email)) {
@@ -53,7 +56,9 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                 binding.inputConfirmPass.error
                 Toast.makeText(activity, "Password didn't match", Toast.LENGTH_SHORT).show()
             } else {
-                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                //adding user for authentication
+                auth = FirebaseAuth.getInstance()
+                auth!!.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(
                         OnCompleteListener<AuthResult> { task ->
                             if (task.isSuccessful) {
@@ -64,6 +69,13 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()
+
+                                uid = firebaseUser.uid
+                                Log.i("Current User", uid!!)
+
+                                //calling saveUserData
+                                saveUserData(uid!!, name, email, confirmPassword)
+
                                 findNavController().navigateUp()
                             } else {
                                 Toast.makeText(
@@ -82,5 +94,18 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         }
 
         return binding.root
+    }
+
+    //saving the user data in realtime database (firebase)
+    private fun saveUserData(
+        userId: String,
+        userName: String,
+        userEmail: String,
+        userPass: String
+    ) {
+        Log.i("Inside saveUser", "Inside saveUser")
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+        val user = User(userName, userEmail, userPass)
+        databaseReference.child(userId).setValue(user)
     }
 }

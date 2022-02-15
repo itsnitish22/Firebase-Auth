@@ -22,11 +22,6 @@ import org.w3c.dom.Text
 class LoginFragment : Fragment(R.layout.fragment_login) {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private lateinit var auth: FirebaseAuth
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +32,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnLogin.setOnClickListener {
             val email: String = binding.inputEmail.text.toString()
             val password: String = binding.inputPassword.text.toString()
+
+            //checking for valid inputs
             when {
                 TextUtils.isEmpty(email) -> {
                     binding.inputEmail.error = "Email required"
@@ -47,6 +44,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
 
                 else -> {
+                    //authorising the user and logging in
                     FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(
                             OnCompleteListener<AuthResult> { task ->
@@ -74,22 +72,3 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         return binding.root
     }
 }
-
-//for button effect on click
-/*
-fun buttonEffect(button: View) {
-    button.setOnTouchListener { v, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                v.background.setColorFilter(-0x1f0b8adf, PorterDuff.Mode.SRC_ATOP)
-                v.invalidate()
-            }
-            MotionEvent.ACTION_UP -> {
-                v.background.clearColorFilter()
-                v.invalidate()
-            }
-        }
-        false
-    }
-}
- */
