@@ -1,7 +1,6 @@
 package com.example.firebase_auth
 
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.example.firebase_auth.databinding.FragmentLoginBinding
 import com.example.firebase_auth.databinding.FragmentRegisterBinding
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.AuthResult
@@ -20,8 +18,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
-import java.lang.ref.PhantomReference
-import java.security.AccessController.getContext
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
     private var _binding: FragmentRegisterBinding? = null
@@ -62,20 +58,11 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                     .addOnCompleteListener(
                         OnCompleteListener<AuthResult> { task ->
                             if (task.isSuccessful) {
-                                val firebaseUser: FirebaseUser = task.result!!.user!!
-                                Toast.makeText(
-                                    activity,
-                                    "Successfully Registered",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-
-                                uid = firebaseUser.uid
-                                Log.i("Current User", uid!!)
-
-                                //calling saveUserData
-                                saveUserData(uid!!, name, email, confirmPassword)
-
+                                val currentUser = Firebase.auth.currentUser
+                                if (currentUser != null) {
+                                    Log.i("Current User", currentUser.uid)
+                                }
+                                sendEmailVerification(currentUser, name, email, confirmPassword)
                                 findNavController().navigateUp()
                             } else {
                                 Toast.makeText(
@@ -88,12 +75,29 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                     )
             }
         }
-
         binding.login.setOnClickListener {
             findNavController().navigateUp()
         }
-
         return binding.root
+    }
+
+    private fun sendEmailVerification(
+        currentUser: FirebaseUser?,
+        userName: String,
+        userEmail: String,
+        userPass: String
+    ) {
+        Toast.makeText(
+            activity,
+            "Successfully Registered. Check e-mail for verification",
+            Toast.LENGTH_SHORT
+        ).show()
+        currentUser?.sendEmailVerification()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("Notification", "Email sent.")
+                saveUserData(currentUser.uid, userName, userEmail, userPass)
+            }
+        }
     }
 
     //saving the user data in realtime database (firebase)

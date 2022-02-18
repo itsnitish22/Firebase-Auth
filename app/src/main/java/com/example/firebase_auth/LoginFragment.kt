@@ -50,7 +50,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                             OnCompleteListener<AuthResult> { task ->
                                 if (task.isSuccessful) {
                                     val firebaseUser: FirebaseUser = task.result!!.user!!
-                                    Toast.makeText(activity, "Logged In", Toast.LENGTH_SHORT).show()
+                                    if(firebaseUser.isEmailVerified){
+                                        Toast.makeText(activity, "Logged In", Toast.LENGTH_SHORT).show()
+                                    }else{
+                                        Toast.makeText(activity, "Email isn't verified. Please verify it.", Toast.LENGTH_SHORT).show()
+                                    }
+
                                 } else {
                                     Toast.makeText(
                                         activity,
